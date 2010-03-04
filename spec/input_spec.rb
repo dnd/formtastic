@@ -32,6 +32,29 @@ describe 'SemanticFormBuilder#input' do
         concat(builder.input(:title))
       end
     end
+
+    describe "using non-standard order options" do
+      it "should allow prepend, input, special_sauce, hints, errors" do
+        ::Formtastic::SemanticFormBuilder.inline_order = [:prepend, :input, :special_sauce, :hints, :errors]
+
+        semantic_form_for(@new_post) do |builder|
+          concat(builder.input(:title, :hint => "Hi", :prepend => '<span id="awesome"></span>', :special_sauce => '<img id="win"\>'))
+        end
+
+        output_buffer.should have_tag("form li span#awesome+label+input+img#win+p.inline-hints")
+
+      end
+
+      it "should not complain about missing non-standard order options" do
+        ::Formtastic::SemanticFormBuilder.inline_order = [:prepend, :input, :special_sauce, :hints, :errors]
+
+        semantic_form_for(@new_post) do |builder|
+          concat(builder.input(:title, :hint => "Hi"))
+        end
+
+        output_buffer.should have_tag("form li label+input+p.inline-hints")
+      end
+    end
   end
 
   describe 'arguments and options' do

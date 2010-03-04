@@ -28,6 +28,7 @@ module Formtastic #:nodoc:
     RESERVED_COLUMNS = [:created_at, :updated_at, :created_on, :updated_on, :lock_version, :version]
 
     INLINE_ERROR_TYPES = [:sentence, :list, :first]
+    BUILTIN_INLINE_OPTIONS = [:input, :hints, :errors]
 
     attr_accessor :template
 
@@ -96,7 +97,11 @@ module Formtastic #:nodoc:
       input_parts.delete(:errors) if options[:as] == :hidden
 
       list_item_content = input_parts.map do |type|
-        send(:"inline_#{type}_for", method, options)
+        if BUILTIN_INLINE_OPTIONS.include?(type)
+          send(:"inline_#{type}_for", method, options)
+        else
+          options[type]
+        end
       end.compact.join("\n")
 
       return template.content_tag(:li, list_item_content, wrapper_html)
